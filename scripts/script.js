@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com/';
+const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
     const TOKEN_KEY = 'vaultBankAuthToken'; 
 
     function formatCurrency(amount) {
