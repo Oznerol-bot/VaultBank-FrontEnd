@@ -219,7 +219,6 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
             if (!data || !data.user) throw new Error("Invalid dashboard data received.");
 
-            // Construct accounts list from dashboard data
             const accounts = [
                 { name: "Checking Account", id: "CHK", balance: data.user.currentBalance },
                 { name: "Savings Account", id: "SAV", balance: data.user.savingsBalance },
@@ -227,11 +226,8 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
             ];
 
             const dropdowns = [
-                // Withdraw From: Includes balance and all 3 accounts
                 { elementId: 'w-account', includeBalance: true, includeInvestment: true, label: "Withdraw From" },
-                // Deposit To: Excludes balance, includes all 3 accounts
                 { elementId: 'd-account', includeBalance: false, includeInvestment: true, label: "Deposit To" },
-                // Send From (Transfer): Includes balance, EXCLUDES Investment Account
                 { elementId: 'sourceAccount', includeBalance: true, includeInvestment: false, label: "Send From" }
             ];
 
@@ -241,7 +237,6 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
                 element.innerHTML = '';
                 
-                // Add default disabled placeholder option
                 const defaultOption = document.createElement('option');
                 defaultOption.textContent = `-- Select ${label} --`;
                 defaultOption.value = "";
@@ -250,7 +245,6 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
                 element.appendChild(defaultOption);
 
                 accounts.forEach(account => {
-                    // Skip Investment Account for the 'Send From' dropdown
                     if (!includeInvestment && account.name === "Investment Account") {
                         return;
                     }
@@ -270,7 +264,6 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
         } catch (error) {
             console.error('Error fetching account data for transactions:', error);
-            // Show user-facing error message in the dropdowns
             const selectElements = ['w-account', 'd-account', 'sourceAccount'];
             selectElements.forEach(id => {
                 const element = document.getElementById(id);
@@ -357,7 +350,6 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
             const data = await makeApiCall('/profile', 'GET'); 
             const form = document.querySelector('#profile .profile-form');
             if (form) {
-                // Corrected property access for dynamic population
                 form.querySelector('input[name="firstName"]').value = data.user.firstName || '';
                 form.querySelector('input[name="lastName"]').value = data.user.lastName || '';
                 form.querySelector('input[type="email"]').value = data.user.email || '';
@@ -429,57 +421,47 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 async function handleSignup(event) {
     event.preventDefault();
 
-    const firstName = document.getElementById('firstName').value;
-    const lastName = document.getElementById('lastName').value;
-    const email = document.getElementById('email').value;
-    const contactNumber = document.getElementById('contactNumber').value;
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const contactNumber = document.getElementById('contactNumber').value.trim();
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
-    const username = document.getElementById('username').value;
+    const username = document.getElementById('username').value.trim();
 
     if (password !== confirmPassword) {
-        showToastMessage('signupMessageArea', 'Passwords do not match.', 'error');
+        showToastMessage('signupMessageArea', 'Passwords do not match.', 'alert-danger');
         return;
     }
 
-    showToastMessage('signupMessageArea', 'Creating account...', 'info');
+    if (password.length < 6) {
+        showToastMessage('signupMessageArea', 'Password must be at least 6 characters.', 'alert-danger');
+        return;
+    }
+
+    showToastMessage('signupMessageArea', 'Creating account...', 'alert-info');
 
     try {
-        const response = await fetch(
-            `https://vaultbank-7i3m.onrender.com/api/v1/auth/register`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    firstName,
-                    lastName,
-                    email,
-                    contactNumber,
-                    password,
-                    username
-                })
-            }
-        );
+        const data = await makeApiCall('/api/v1/auth/register', 'POST', {
+            firstName,
+            lastName,
+            email: email.toLowerCase(),
+            contactNumber,
+            password,
+            username: username.toLowerCase()
+        });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-            showToastMessage('signupMessageArea', data.message || 'Signup failed.', 'error');
-            return;
-        }
-
-        showToastMessage('signupMessageArea', data.message, 'success');
+        showToastMessage('signupMessageArea', data.message || 'Account created! Please wait for admin approval.', 'alert-success');
 
         setTimeout(() => {
             window.location.href = 'login.html';
-        }, 1500);
+        }, 2000);
 
     } catch (error) {
-        console.error('Signup Error:', error);
-        showToastMessage('signupMessageArea', 'Server error. Please try again later.', 'error');
+        console.error('Signup error:', error);
+        showToastMessage('signupMessageArea', error.message || 'Registration failed. Please try again.', 'alert-danger');
     }
 }
-
 
     document.addEventListener('DOMContentLoaded', () => {
         checkAuthentication(true); 
