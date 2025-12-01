@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vault Bank - Sign Up</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --black: #000000;
+      --dark-navy: #282A3A;
+      --brown: #735F32;
+      --gold: #C69749;
+      --cream: #FEF3E2;
+    }
+
+    body {
+      background: var(--cream);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .top-bar {
+      background: var(--brown);
+      height: 70px;
+      display: flex;
+      align-items: center;
+      padding-left: 30px;
+    }
+
+    .signup-card {
+      background: #FFFFFF;
+      border-radius: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      padding: 40px 50px;
+      max-width: 550px; /* Wider card for more fields */
+      width: 100%;
+    }
+    .btn-signup {
+      background: var(--gold);
+      color: var(--dark-navy);
+      font-weight: bold;
+      padding: 12px 0;
+      border-radius: 10px;
+      transition: background-color 0.3s;
+    }
+    .btn-signup:hover {
+      background: #b8960e;
+      color: var(--dark-navy);
+    }
+    .text-gold {
+      color: var(--gold) !important;
+    }
+    .text-gold:hover {
+      color: var(--brown) !important;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div class="top-bar">
+    <img src="images/Logo.png" alt="Vault Bank Logo" style="height: 40px;">
+  </div>
+
+  <div class="container d-flex flex-grow-1 justify-content-center align-items-center py-5">
+    <div class="row w-100">
+      <div class="col-12 d-flex justify-content-center">
+        
+        <div class="signup-card">
+          <div class="card-body">
+            <h2 class="h4 card-title mb-4 text-center">Create Account</h2>
+            
+            <div id="signup-message" role="alert" style="margin-bottom: 20px;"></div>
+
+            <form id="signupForm">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="firstName" class="form-label">First Name</label>
+                  <input type="text" class="form-control" id="firstName" name="firstName" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="lastName" class="form-label">Last Name</label>
+                  <input type="text" class="form-control" id="lastName" name="lastName" required>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+              </div>
+              <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+              </div>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="password" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="col-md-6 mb-4">
+                  <label for="confirmPassword" class="form-label">Confirm Password</label>
+                  <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                </div>
+              </div>
+
+              <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" id="terms" required>
+                <label class="form-check-label" for="terms">
+                  By creating an account you agree to our <a href="#" class="text-gold">Terms and Conditions</a>
+                </label>
+              </div>
+
+              <button type="submit" class="btn btn-signup w-100">Sign Up</button>
+
+              <p class="mt-4 mb-0 text-muted">
+                Already have account? <a href="login.html" class="text-gold">Log In</a>
+              </p>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <footer class="bg-dark py-3">
+        <div class="container">
+        <div class="row align-items-center text-center text-lg-start">   
+            <div class="col-lg-6">
+            <p class="mb-0 text-white-50">© Vault Bank 2025. All rights reserved.</p>
+            </div>
+                
+            <div class="col-lg-6 text-lg-end mt-3 mt-lg-0">
+            <a href="#" class="text-light mx-2"><i class="bi bi-facebook fs-4"></i></a>
+            <a href="#" class="text-light mx-2"><i class="bi bi-twitter fs-4"></i></a>
+            <a href="#" class="text-light mx-2"><i class="bi bi-instagram fs-4"></i></a>
+            <a href="#" class="text-light mx-2"><i class="bi bi-linkedin fs-4"></i></a>
+            </div>
+                
+        </div>
+        </div>
+    </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script src="script.js"></script>
+</body>
+</html>

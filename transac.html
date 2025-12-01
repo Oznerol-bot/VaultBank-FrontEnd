@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vault Bank - Transactions & Transfers</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  
+  <link rel="stylesheet" href="styles/dashboard.css">
+  
+  <link rel="stylesheet" href="styles/support.css"> 
+  
+  <style>
+    /* Custom styles to ensure the single-form layout works within the page */
+    .transaction-form .card {
+      max-width: 700px; 
+      margin: 0 auto; 
+      padding: 40px;
+      border-radius: 16px; 
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+    }
+    .transaction-form .card h3 {
+      border-bottom: 2px solid #eee;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+      color: var(--dark);
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .recipient-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .recipient-selector button {
+        padding: 10px 15px;
+        border-radius: 8px;
+        background: #f0e6dc;
+        border: 2px solid transparent;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+    .recipient-selector button.active {
+        background: #fff;
+        border-color: var(--primary);
+        color: var(--primary);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+    .recent-transactions li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px dashed #eee;
+    }
+
+  </style>
+</head>
+<body>
+
+  <aside>
+    <div class="logo-header">
+      <img src="images/Logo.png" alt="Vault Bank">
+      <p>Secure. Simple. Trusted</p>
+    </div>
+    <nav>
+      <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+      <a href="transaction.html"><i class="fas fa-exchange-alt"></i><span>Transactions</span></a>
+      <a href="transac.html" class="active"><i class="fas fa-paper-plane"></i><span>Transac</span></a>
+      <a href="log.html"><i class="fas fa-file-alt"></i><span>Activity Log</span></a>
+      <a href="support.html"><i class="fas fa-ticket-alt"></i><span>Support Ticket</span></a>
+      <a href="settings.html"><i class="fas fa-cog"></i><span>Settings</span></a>
+      <a href="#" id="logoutLink" style="margin-top: 50px;"><i class="fas fa-sign-out-alt"></i><span>Log Out</span></a>
+    </nav>
+  </aside>
+
+  <main>
+    <header>
+      <div class="top-bar">
+        <div class="search-bar">
+          <input type="text" placeholder="Search recipients or accounts...">
+          <i class="fas fa-search"></i>
+        </div>
+        <div class="user-profile">
+          <img src="" alt="User">
+        </div>
+      </div>
+      <h2 class="welcome">Transfer, Withdrawals, and Deposits</h2>
+      <p style="color:#666; margin-bottom:30px; font-size:15px;">Transfer, withdraw, and deposit funds instantly and securely</p>
+    </header>
+
+    <div class="page-content">
+
+      <div class="category-grid" id="transaction-types">
+        
+        <div class="category-card" data-target="withdraw-form">
+          <i class="fas fa-money-bill-wave"></i>
+          <strong>Withdraw</strong>
+          <p>Request cash or transfer to external.</p>
+        </div>
+
+        <div class="category-card" data-target="deposit-form">
+          <i class="fas fa-piggy-bank"></i>
+          <strong>Deposit</strong>
+          <p>Add funds via check or external transfer.</p>
+        </div>
+
+        <div class="category-card selected" data-target="transfer-form">
+          <i class="fas fa-paper-plane"></i>
+          <strong>Transfer</strong>
+          <p>Send money to frequent or new recipients.</p>
+        </div>
+      </div>
+      
+      <div id="withdraw-form" class="transaction-form" style="display:none;">
+        <div class="card">
+          <h3>Withdraw Funds</h3>
+          <p class="text-muted">Select an account and enter the **amount** you wish to withdraw (required by Vault Bank API).</p>
+          <form id="withdrawForm" style="margin-top:20px;">
+            
+            <div class="form-group">
+              <label for="w-account">Withdraw From</label>
+              <select id="w-account" required>
+                <option disabled selected>Loading accounts...</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="w-amount">Amount (₱)</label>
+              <input type="number" id="w-amount" placeholder="Enter amount to withdraw" required min="1">
+            </div>
+            
+            <button type="submit" class="submit-ticket">
+              Process Withdrawal
+            </button>
+            <div id="withdrawMessageArea" class="alert" style="display:none;"></div>
+          </form>
+        </div>
+      </div>
+
+
+      <div id="deposit-form" class="transaction-form" style="display:none;">
+        <div class="card">
+          <h3>Deposit Funds</h3>
+          <p class="text-muted">Select an account and enter the **amount** of your incoming deposit (required by Vault Bank API).</p>
+          <form id="depositForm" style="margin-top:20px;">
+            
+            <div class="form-group">
+              <label for="d-method">Deposit Method</label>
+              <select id="d-method" required>
+                <option>External Bank Transfer</option>
+                <option>Check Deposit</option>
+                <option>Cash Deposit</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="d-account">Deposit To</label>
+              <select id="d-account" required>
+                <option disabled selected>Loading accounts...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="d-amount">Amount (₱)</label>
+              <input type="number" id="d-amount" placeholder="Enter amount to deposit" required min="1">
+            </div>
+            
+            <button type="submit" class="submit-ticket">
+              Confirm Deposit
+            </button>
+            <div id="depositMessageArea" class="alert" style="display:none;"></div>
+          </form>
+        </div>
+      </div>
+
+
+      <div id="transfer-form" class="transaction-form">
+        <div class="card">
+          <h3>New Transfer</h3>
+          <form id="transferForm" style="margin-top:20px;">
+            
+            <div class="form-group">
+              <label for="sourceAccount">Send From</label>
+              <select id="sourceAccount">
+                <option disabled selected>Loading accounts...</option>
+              </select>
+            </div>
+            
+            <label class="form-group" style="margin-bottom: 5px;">Recipient Type</label>
+            <div class="recipient-selector" id="recipient-type-selector">
+              <button type="button" class="active" data-recipient-type="bank">
+                <i class="fas fa-university"></i> Bank Account
+              </button>
+              <button type="button" data-recipient-type="id">
+                <i class="fas fa-at"></i> Vault Bank ID (Email/User)
+              </button>
+            </div>
+            
+            <div id="recipient-bank-fields" data-required-group="true">
+              <div class="form-group">
+                <label for="recipientBank">Recipient Bank</label>
+                <select id="recipientBank" name="recipientBank" required>
+                  <option>BPI (Bank of the Philippine Islands)</option>
+                  <option>BDO (Banco de Oro)</option>
+                  <option>Vault Bank (Internal)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="accountNumber">Recipient Account Number</label>
+                <input type="text" id="accountNumber" name="recipientAccount" placeholder="Enter 12-digit account number" required>
+              </div>
+            </div>
+
+            <div id="recipient-id-fields" data-required-group="false" style="display: none;">
+                <div class="form-group">
+                <label for="recipientId">Recipient Email or Username</label>
+                <input type="text" id="recipientId" name="recipientIdentifier" placeholder="Enter recipient's Vault Bank Email or Username">
+                <small style="color:var(--success);">Transfers by Vault Bank ID are instant and free.</small>
+              </div>
+            </div>
+
+
+            <div class="form-group">
+              <label for="transferAmount">Amount (₱)</label>
+              <input type="number" id="transferAmount" placeholder="Enter amount to send" required min="1">
+            </div>
+
+            <div class="form-group">
+              <label for="remarks">Remarks (Optional)</label>
+              <input type="text" id="remarks" placeholder="E.g., Monthly Rent">
+            </div>
+
+            <button type="submit" class="submit-ticket">
+              Review Transfer
+            </button>
+            <div id="transferMessageArea" class="alert" style="display:none;"></div>
+          </form>
+        </div>
+
+        <div class="card recent-transactions" style="max-width:700px; margin:0 auto; margin-top: 25px;">
+          <h3>Frequent Recipients</h3>
+          <ul style="margin-top:15px; list-style: none; padding: 0;">
+            <li>
+              <div style="display:flex; align-items:center; gap:14px;">
+                <div style="width:46px; height:46px; background:#e8f5e9; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#2e7d32; flex-shrink: 0;">MS</div>
+                <div>
+                  <strong>Maria Santos</strong><br>
+                  <small style="color:#777;">BPI • ****9012</small>
+                </div>
+              </div>
+              <span style="color:var(--primary); font-weight:600;">₱2,500 last sent</span>
+            </li>
+            <li>
+              <div style="display:flex; align-items:center; gap:14px;">
+                <div style="width:46px; height:46px; background:#fff3e0; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#ef6c00; flex-shrink: 0;">RL</div>
+                <div>
+                  <strong>Rent - Landlord</strong><br>
+                  <small style="color:#777;">Metrobank • ****5541</small>
+                </div>
+              </div>
+              <span style="color:var(--primary); font-weight:600;">₱25,000 last sent</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <footer>Vault Bank © 2025. All rights reserved.</footer>
+  </main>
+
+  <script>
+
+    function updateTransferFields(activeType) {
+        const bankFields = document.getElementById('recipient-bank-fields');
+        const idFields = document.getElementById('recipient-id-fields');
+
+        const toggleRequired = (fieldGroup, isRequired) => {
+            fieldGroup.querySelectorAll('input, select').forEach(field => {
+                if (isRequired) {
+                    field.setAttribute('required', 'required');
+                } else {
+                    field.removeAttribute('required');
+                }
+            });
+        };
+
+        if (activeType === 'bank') {
+            bankFields.style.display = 'block';
+            idFields.style.display = 'none';
+            toggleRequired(bankFields, true);
+            toggleRequired(idFields, false);
+        } else { // activeType is 'id'
+            bankFields.style.display = 'none';
+            idFields.style.display = 'block';
+            toggleRequired(bankFields, false);
+            toggleRequired(idFields, true);
+        }
+    }
+
+    function showTransactionForm(targetId) {
+
+        document.querySelectorAll('.transaction-form').forEach(container => {
+            container.style.display = 'none';
+        });
+
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+
+
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+            targetElement.style.display = 'block';
+        }
+
+
+        const clickedCard = document.querySelector(`.category-card[data-target="${targetId}"]`);
+        if (clickedCard) {
+            clickedCard.classList.add('selected');
+        }
+        
+
+        if (targetId === 'transfer-form') {
+            const activeType = document.querySelector('#recipient-type-selector button.active')?.getAttribute('data-recipient-type') || 'bank';
+            updateTransferFields(activeType);
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        document.querySelectorAll('.category-grid .category-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const targetId = card.getAttribute('data-target');
+                showTransactionForm(targetId);
+            });
+        });
+
+
+        document.querySelectorAll('#recipient-type-selector button').forEach(button => {
+            button.addEventListener('click', () => {
+                const type = button.getAttribute('data-recipient-type');
+                
+
+                document.querySelectorAll('#recipient-type-selector button').forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+    
+                updateTransferFields(type);
+            });
+        });
+
+        const activeCard = document.querySelector('.category-card.selected');
+        if (activeCard) {
+            showTransactionForm(activeCard.getAttribute('data-target'));
+        } else {
+  
+            showTransactionForm('transfer-form');
+        }
+        
+
+    });
+  </script>
+
+</body>
+</html>

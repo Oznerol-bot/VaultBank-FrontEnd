@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vault Bank - Settings</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  
+  <link rel="stylesheet" href="styles/dashboard.css">
+  
+  <link rel="stylesheet" href="styles/settings.css">
+</head>
+<body>
+
+  <aside>
+    <div class="logo-header">
+      <img src="images/Logo.png" alt="Vault Bank">
+      <p>Secure. Simple. Trusted</p>
+    </div>
+    <nav>
+      <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+      <a href="transaction.html"><i class="fas fa-exchange-alt"></i><span>Transactions</span></a>
+      <a href="transac.html"><i class="fas fa-paper-plane"></i><span>Transac</span></a>
+      <a href="log.html"><i class="fas fa-file-alt"></i><span>Activity Log</span></a>
+      <a href="support.html"><i class="fas fa-ticket-alt"></i><span>Support Ticket</span></a>
+      <a href="settings.html" class="active"><i class="fas fa-cog"></i><span>Settings</span></a>
+      <a href="#" id="logoutLink" style="margin-top: 50px;"><i class="fas fa-sign-out-alt"></i><span>Log Out</span></a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="top-bar">
+      <div class="search-bar">
+        <input type="text" placeholder="Search settings...">
+        <i class="fas fa-search"></i>
+      </div>
+      <div class="user-profile">
+        <img src="" alt="User">
+      </div>
+    </div>
+
+    <h2 class="welcome">Settings</h2>
+    <p class="page-subtitle">Manage your account settings and preferences</p>
+
+    <div class="settings-container">
+      <div class="settings-tabs">
+        <div class="tab-item active" data-tab="profile">
+          <i class="fas fa-user"></i> Profile
+        </div>
+        <div class="tab-item" data-tab="security">
+          <i class="fas fa-shield-alt"></i> Security
+        </div>
+        <div class="tab-item" data-tab="notifications">
+          <i class="fas fa-bell"></i> Notifications
+        </div>
+      </div>
+
+      <div class="settings-content">
+
+        <div class="tab-panel active" id="profile">
+          <div class="card">
+            <h3>Personal Information</h3>
+            <div id="profileMessageArea" class="alert" style="display:none;"></div> 
+            <form class="profile-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>First Name</label>
+                  <input type="text"  />
+                </div>
+                <div class="form-group">
+                  <label>Last Name</label>
+                  <input type="text" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" />
+              </div>
+              <div class="form-group">
+                <label>Contact Number</label>
+                <input type="tel"  />
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn-cancel">Cancel</button>
+                <button type="submit" class="btn-save">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="security">
+          <div class="card">
+            <h3>Change Password</h3>
+            <div id="securityMessageArea" class="alert" style="display:none;"></div> 
+            <form class="security-form">
+              <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" placeholder="Enter current password" />
+              </div>
+              <div class="form-group">
+                <label>New Password</label>
+                <input type="password" placeholder="Create a strong password" />
+              </div>
+              <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" placeholder="Re-type new password" />
+              </div>
+              <button type="submit" class="btn-update">Update Password</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="notifications">
+          <div class="card">
+            <h3>Email Notifications</h3>
+            <div class="toggle-group">
+              <div class="toggle-item">
+                <div>
+                  <strong>Transactions</strong>
+                  <small>Get notified about transactions updates</small>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="toggle-item">
+                <div>
+                  <strong>Security</strong>
+                  <small>Get notified about security updates</small>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="toggle-item">
+                <div>
+                  <strong>Marketing</strong>
+                  <small>Get updates about new features and offers</small>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <footer>Vault Bank © 2025. All rights reserved.</footer>
+  </main>
+
+  <script>
+
+    document.querySelectorAll('.tab-item').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.getAttribute('data-tab');
+
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+ 
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+          panel.classList.remove('active');
+        });
+        document.getElementById(target).classList.add('active');
+      });
+    });
+  </script>
+
+<script src="script.js"></script>
+</body>
+</html>
