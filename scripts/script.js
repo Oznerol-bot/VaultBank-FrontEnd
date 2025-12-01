@@ -446,7 +446,7 @@ async function handleSignup(event) {
 
     try {
         const response = await fetch(
-            `${API_BASE_URL}/api/v1/auth/register`,
+            `https://vaultbank-7i3m.onrender.com/api/v1/auth/register`,
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
