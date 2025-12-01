@@ -389,22 +389,96 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com/';
     }
 
 
-    async function handleLogin(event) {
-        event.preventDefault();
-        showToastMessage('loginMessageArea', 'Logging in...', 'info');
-        const fakeToken = 'sample_jwt_token_for_vaultbank';
-        localStorage.setItem(TOKEN_KEY, fakeToken);
-        window.location.href = 'dashboard.html';
+ async function handleLogin(event) {
+    event.preventDefault();
+
+
+    const identifier = document.getElementById('identifier').value;
+    const password = document.getElementById('password').value;
+
+
+    showToastMessage('loginMessageArea', 'Logging in...', 'info');
+
+
+    try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier, password })
+    });
+
+
+    const data = await response.json();
+
+
+    if (!response.ok) {
+    showToastMessage('loginMessageArea', data.message || 'Login failed.', 'error');
+    return;
     }
 
-    async function handleSignup(event) {
-        event.preventDefault();
-        showToastMessage('signupMessageArea', 'Creating account...', 'info');
-        showToastMessage('signupMessageArea', 'Account created! Redirecting to login...', 'success');
-        setTimeout(() => {
-             window.location.href = 'login.html';
-        }, 1500);
+
+    localStorage.setItem(TOKEN_KEY, data.token);
+    window.location.href = 'dashboard.html';
+
+
+    } catch (error) {
+    showToastMessage('loginMessageArea', 'Server error.', 'error');
     }
+}
+
+async function handleSignup(event) {
+    event.preventDefault();
+
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('email').value;
+    const username = document.getElementById('username').value;
+    const contactNumber = document.getElementById('contactNumber').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (password !== confirmPassword) {
+        showToastMessage('signupMessageArea', 'Passwords do not match.', 'error');
+        return;
+    }
+
+    showToastMessage('signupMessageArea', 'Creating account...', 'info');
+
+    try {
+        const response = await fetch(
+            'https://vaultbank-7i3m.onrender.com/api/v1/auth/register',
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    firstName,
+                    lastName,
+                    email,
+                    username,
+                    contactNumber,
+                    password
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showToastMessage('signupMessageArea', data.message || 'Signup failed.', 'error');
+            return;
+        }
+
+        showToastMessage('signupMessageArea', data.message, 'success');
+
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1500);
+
+    } catch (error) {
+        console.error('Signup Error:', error);
+        showToastMessage('signupMessageArea', 'Server error. Please try again later.', 'error');
+    }
+}
 
 
     document.addEventListener('DOMContentLoaded', () => {
