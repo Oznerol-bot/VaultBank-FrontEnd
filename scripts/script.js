@@ -432,10 +432,10 @@ async function handleSignup(event) {
     const firstName = document.getElementById('firstName').value;
     const lastName = document.getElementById('lastName').value;
     const email = document.getElementById('email').value;
-    const username = document.getElementById('username').value;
     const contactNumber = document.getElementById('contactNumber').value;
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
+    const username = document.getElementById('username').value;
 
     if (password !== confirmPassword) {
         showToastMessage('signupMessageArea', 'Passwords do not match.', 'error');
@@ -454,9 +454,9 @@ async function handleSignup(event) {
                     firstName,
                     lastName,
                     email,
-                    username,
                     contactNumber,
-                    password
+                    password,
+                    username
                 })
             }
         );
