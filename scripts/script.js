@@ -398,21 +398,13 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ identifier, password })
     });
-
-
     const data = await response.json();
-
-
     if (!response.ok) {
     showToastMessage('loginMessageArea', data.message || 'Login failed.', 'error');
     return;
     }
-
-
     localStorage.setItem(TOKEN_KEY, data.token);
     window.location.href = 'dashboard.html';
-
-
     } catch (error) {
     showToastMessage('loginMessageArea', 'Server error.', 'error');
     }
@@ -473,13 +465,13 @@ async function handleSignup(event) {
             logoutLink.addEventListener('click', handleLogout);
         }
         
-        // --- PAGE-SPECIFIC INITIALIZATION ---
 
         if (currentPage === 'login.html') {
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
                 loginForm.addEventListener('submit', handleLogin);
             }
+            checkAuthentication(true);
         }
         
         if (currentPage === 'signup.html') {
