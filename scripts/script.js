@@ -384,29 +384,23 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
  async function handleLogin(event) {
     event.preventDefault();
 
-
     const identifier = document.getElementById('identifier').value;
     const password = document.getElementById('password').value;
-
-
+    
     showToastMessage('loginMessageArea', 'Logging in...', 'info');
 
-
     try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ identifier, password })
-    });
-    const data = await response.json();
-    if (!response.ok) {
-    showToastMessage('loginMessageArea', data.message || 'Login failed.', 'error');
-    return;
-    }
-    localStorage.setItem(TOKEN_KEY, data.token);
-    window.location.href = 'dashboard.html';
+        const data = await makeApiCall('/api/v1/auth/login', 'POST', { identifier, password }, false);
+
+        localStorage.setItem(TOKEN_KEY, data.token);
+        
+        showToastMessage('loginMessageArea', data.message || 'Login successful!', 'success');
+        
+        window.location.href = 'dashboard.html';
+
     } catch (error) {
-    showToastMessage('loginMessageArea', 'Server error.', 'error');
+        console.error('Login error:', error);
+        showToastMessage('loginMessageArea', error.message || 'Login failed. Please try again.', 'error');
     }
 }
 
