@@ -257,7 +257,7 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
                     }
                     
                     option.textContent = textContent;
-                    option.value = account.id; // Use a unique ID (like CHK) as the value
+                    option.value = account.id; 
                     element.appendChild(option);
                 });
             });
