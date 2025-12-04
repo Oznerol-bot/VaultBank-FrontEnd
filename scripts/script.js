@@ -80,8 +80,7 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
 
     function createTransactionItem(transaction) {
-
-        const isIncome = transaction.type === 'deposit' || transaction.type === 'transfer';
+        const isIncome = transaction.type === 'deposit' || transaction.type === 'transfer'; 
         const iconClass = isIncome ? 'fa-arrow-down' : 'fa-arrow-up'; 
         const color = isIncome ? 'var(--success)' : 'var(--danger)';
         const amountSign = isIncome ? '+' : '-';
@@ -165,7 +164,7 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
     async function fetchTransactions() {
         try {
-   
+            // FIX: Corrected API endpoint
             const data = await makeApiCall('/api/v1/reports/transactions-summary', 'GET'); 
             const listElement = document.getElementById('transactions-list');
             const summaryIncome = document.querySelector('.summary-card.income .amount');
@@ -194,7 +193,6 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
                 const statusClass = 'status-completed'; 
                 const statusText = 'COMPLETED';
                 const transactionId = t.transactionId.slice(-6); 
-                
 
                 
                 return `
@@ -222,7 +220,7 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
     async function fetchAndPopulateTransactionAccounts() {
         try {
-       
+    
             const data = await makeApiCall('/api/v1/dashboard/summary', 'GET');
 
             if (!data || !data.user) throw new Error("Invalid dashboard data received.");
@@ -362,7 +360,6 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
             const data = await makeApiCall('/api/v1/auth/me', 'GET'); 
             const form = document.querySelector('#profile .profile-form');
             if (form) {
-                
                 form.querySelector('input[name="firstName"]').value = data.firstName || '';
                 form.querySelector('input[name="lastName"]').value = data.lastName || '';
                 form.querySelector('input[name="email"]').value = data.email || '';
@@ -380,12 +377,43 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
         showToastMessage('profileMessageArea', 'Profile updated successfully!', 'success');
     }
 
-    async function handleChangePassword(event) {
-        event.preventDefault();
-        showToastMessage('securityMessageArea', 'Changing password...', 'info');
-        showToastMessage('securityMessageArea', 'Password changed successfully!', 'success');
+async function handleChangePassword(event) {
+    event.preventDefault();
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+    
+    if (newPassword !== confirmNewPassword) {
+        showToastMessage('securityMessageArea', 'New passwords do not match.', 'error');
+        return;
     }
 
+    if (newPassword.length < 6) {
+        showToastMessage('securityMessageArea', 'New password must be at least 6 characters.', 'error');
+        return;
+    }
+
+    showToastMessage('securityMessageArea', 'Changing password...', 'info');
+    
+    try {
+        const data = await makeApiCall('/api/v1/auth/password/update', 'POST', {
+            currentPassword,
+            newPassword,
+            confirmNewPassword
+        });
+
+        showToastMessage('securityMessageArea', data.message || 'Password changed successfully!', 'success');
+        
+        // Clear the fields after successful change
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmNewPassword').value = '';
+
+    } catch (error) {
+        console.error('Password change error:', error);
+        showToastMessage('securityMessageArea', error.message || 'Failed to change password. Please check your current password.', 'error');
+    }
+}
 
     async function handleSubmitTicket(event) {
         event.preventDefault();
