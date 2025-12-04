@@ -55,14 +55,36 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
         try {
             const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-            const responseData = await response.json();
+            
+            let responseData;
+            try {
+                responseData = await response.json();
+            } catch (e) {
+                if (response.ok) {
+                    return {};
+                }
+                
+                const errorText = await response.text();
+                console.error("Non-JSON error response received:", errorText.substring(0, 100) + '...');
+                
+                if (response.status === 401) {
+                    localStorage.removeItem(TOKEN_KEY);
+                    if (window.location.pathname.split('/').pop() !== 'login.html') {
+                        window.location.href = 'login.html';
+                    }
+                }
+
+                throw new Error(`Server returned a non-JSON response. Status: ${response.status}.`);
+            }
 
             if (!response.ok) {
                 if (response.status === 401) {
                     localStorage.removeItem(TOKEN_KEY);
-                    window.location.href = 'login.html';
+                    if (window.location.pathname.split('/').pop() !== 'login.html') {
+                        window.location.href = 'login.html';
+                    }
                 }
-                throw new Error(responseData.message || 'API request failed');
+                throw new Error(responseData.message || `API request failed with status ${response.status}`);
             }
 
             return responseData;
@@ -115,7 +137,6 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
         const accountListElement = document.getElementById('accountList');
         
         try {
-
             const data = await makeApiCall('/api/v1/dashboard/summary', 'GET');
 
             if (!data || !data.user) throw new Error("Invalid dashboard data received.");
@@ -164,14 +185,12 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
     async function fetchTransactions() {
         try {
-            // FIX: Corrected API endpoint
             const data = await makeApiCall('/api/v1/reports/transactions-summary', 'GET'); 
             const listElement = document.getElementById('transactions-list');
             const summaryIncome = document.querySelector('.summary-card.income .amount');
             const summaryExpense = document.querySelector('.summary-card.expense .amount');
             const summaryNet = document.querySelector('.summary-card.net .amount');
             
- 
             const transactions = data.transactions || [];
             const summary = data.summary || { totalIncome: 0, totalExpenses: 0, netBalance: 0 };
 
@@ -186,14 +205,11 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
             const tableRows = transactions.map(t => {
                 const isIncome = t.isIncome;
-
                 const amountDisplay = isIncome ? formatCurrency(t.amount) : formatCurrency(-t.amount);
                 
-
                 const statusClass = 'status-completed'; 
                 const statusText = 'COMPLETED';
                 const transactionId = t.transactionId.slice(-6); 
-
                 
                 return `
                     <tr>
@@ -220,7 +236,6 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
     async function fetchAndPopulateTransactionAccounts() {
         try {
-    
             const data = await makeApiCall('/api/v1/dashboard/summary', 'GET');
 
             if (!data || !data.user) throw new Error("Invalid dashboard data received.");
@@ -263,9 +278,6 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
                     }
                     
                     option.textContent = textContent;
-                    // The API routes will likely need to know which account (currentBalance, savingsBalance, etc.) 
-                    // to affect, which is not directly mapped here. 
-                    // We'll keep the CHK/SAV/INV IDs as placeholders for now.
                     option.value = account.id; 
                     element.appendChild(option);
                 });
@@ -356,7 +368,6 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
     async function fetchAndPopulateProfile() {
         try {
-
             const data = await makeApiCall('/api/v1/auth/me', 'GET'); 
             const form = document.querySelector('#profile .profile-form');
             if (form) {
@@ -404,7 +415,6 @@ async function handleChangePassword(event) {
 
         showToastMessage('securityMessageArea', data.message || 'Password changed successfully!', 'success');
         
-        // Clear the fields after successful change
         document.getElementById('currentPassword').value = '';
         document.getElementById('newPassword').value = '';
         document.getElementById('confirmNewPassword').value = '';
