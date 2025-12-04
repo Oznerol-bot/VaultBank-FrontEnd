@@ -80,7 +80,8 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
 
     function createTransactionItem(transaction) {
-        const isIncome = transaction.type === 'deposit';
+
+        const isIncome = transaction.type === 'deposit' || transaction.type === 'transfer';
         const iconClass = isIncome ? 'fa-arrow-down' : 'fa-arrow-up'; 
         const color = isIncome ? 'var(--success)' : 'var(--danger)';
         const amountSign = isIncome ? '+' : '-';
@@ -89,12 +90,12 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
         const date = new Date(transaction.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
 
         let description = transaction.description || `${transaction.type} transaction`;
-        if (transaction.type === 'transfer' && transaction.recipientName) {
-            description = `Transfer to ${transaction.recipientName}`;
+        if (transaction.type === 'transfer') {
+            description = `Transfer`; 
         } else if (transaction.type === 'withdraw') {
-            description = `ATM Withdrawal`;
+            description = `Withdrawal`;
         } else if (transaction.type === 'deposit') {
-            description = `Bank Deposit`;
+            description = `Deposit`;
         }
 
         return `
@@ -115,7 +116,8 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
         const accountListElement = document.getElementById('accountList');
         
         try {
-            const data = await makeApiCall('/dashboard', 'GET');
+
+            const data = await makeApiCall('/api/v1/dashboard/summary', 'GET');
 
             if (!data || !data.user) throw new Error("Invalid dashboard data received.");
             
@@ -163,13 +165,19 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
     async function fetchTransactions() {
         try {
-            const data = await makeApiCall('/transactions', 'GET'); 
+   
+            const data = await makeApiCall('/api/v1/reports/transactions-summary', 'GET'); 
             const listElement = document.getElementById('transactions-list');
             const summaryIncome = document.querySelector('.summary-card.income .amount');
             const summaryExpense = document.querySelector('.summary-card.expense .amount');
             const summaryNet = document.querySelector('.summary-card.net .amount');
+            
+ 
+            const transactions = data.transactions || [];
+            const summary = data.summary || { totalIncome: 0, totalExpenses: 0, netBalance: 0 };
 
-            if (!data || data.transactions.length === 0) {
+
+            if (transactions.length === 0) {
                  listElement.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px;">No transactions found.</td></tr>`;
                  summaryIncome.textContent = formatCurrency(0);
                  summaryExpense.textContent = formatCurrency(0);
@@ -177,34 +185,33 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
                  return;
             }
 
-            let income = 0;
-            let expense = 0;
-            
-            const tableRows = data.transactions.map(t => {
-                const isIncome = t.type === 'deposit';
-                const amount = isIncome ? t.amount : -t.amount;
-                if (isIncome) {
-                    income += t.amount;
-                } else {
-                    expense += t.amount;
-                }
-                const statusClass = t.status === 'completed' ? 'status-completed' : 'status-pending';
+            const tableRows = transactions.map(t => {
+                const isIncome = t.isIncome;
 
+                const amountDisplay = isIncome ? formatCurrency(t.amount) : formatCurrency(-t.amount);
+                
+
+                const statusClass = 'status-completed'; 
+                const statusText = 'COMPLETED';
+                const transactionId = t.transactionId.slice(-6); 
+                
+
+                
                 return `
                     <tr>
-                        <td>${new Date(t.createdAt).toLocaleDateString()}</td>
-                        <td>${t.id.slice(-6)}</td>
-                        <td>${t.type.charAt(0).toUpperCase() + t.type.slice(1)}</td>
-                        <td><span class="${statusClass}">${t.status.toUpperCase()}</span></td>
-                        <td class="${isIncome ? 'positive' : 'negative'}">${formatCurrency(amount)}</td>
+                        <td>${t.date}</td>
+                        <td>${transactionId}</td> 
+                        <td>${t.type}</td>
+                        <td><span class="${statusClass}">${statusText}</span></td>
+                        <td class="${isIncome ? 'positive' : 'negative'}">${amountDisplay}</td>
                     </tr>
                 `;
             }).join('');
 
             listElement.innerHTML = tableRows;
-            summaryIncome.textContent = '+' + formatCurrency(income);
-            summaryExpense.textContent = '-' + formatCurrency(expense);
-            summaryNet.textContent = formatCurrency(income - expense);
+            summaryIncome.textContent = '+' + formatCurrency(summary.totalIncome);
+            summaryExpense.textContent = '-' + formatCurrency(summary.totalExpenses);
+            summaryNet.textContent = formatCurrency(summary.netBalance);
             
         } catch (error) {
             console.error('Error fetching transactions:', error);
@@ -215,12 +222,13 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
     async function fetchAndPopulateTransactionAccounts() {
         try {
-            const data = await makeApiCall('/dashboard', 'GET');
+       
+            const data = await makeApiCall('/api/v1/dashboard/summary', 'GET');
 
             if (!data || !data.user) throw new Error("Invalid dashboard data received.");
 
             const accounts = [
-                { name: "Checking Account", id: "CHK", balance: data.user.currentBalance },
+                { name: "Current Balance", id: "CHK", balance: data.user.currentBalance },
                 { name: "Savings Account", id: "SAV", balance: data.user.savingsBalance },
                 { name: "Investment Account", id: "INV", balance: data.user.investmentBalance },
             ];
@@ -257,6 +265,9 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
                     }
                     
                     option.textContent = textContent;
+                    // The API routes will likely need to know which account (currentBalance, savingsBalance, etc.) 
+                    // to affect, which is not directly mapped here. 
+                    // We'll keep the CHK/SAV/INV IDs as placeholders for now.
                     option.value = account.id; 
                     element.appendChild(option);
                 });
@@ -347,13 +358,15 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
     async function fetchAndPopulateProfile() {
         try {
-            const data = await makeApiCall('/profile', 'GET'); 
+
+            const data = await makeApiCall('/api/v1/auth/me', 'GET'); 
             const form = document.querySelector('#profile .profile-form');
             if (form) {
-                form.querySelector('input[name="firstName"]').value = data.user.firstName || '';
-                form.querySelector('input[name="lastName"]').value = data.user.lastName || '';
-                form.querySelector('input[type="email"]').value = data.user.email || '';
-                form.querySelector('input[type="tel"]').value = data.user.contactNumber || '';
+                
+                form.querySelector('input[name="firstName"]').value = data.firstName || '';
+                form.querySelector('input[name="lastName"]').value = data.lastName || '';
+                form.querySelector('input[name="email"]').value = data.email || '';
+                form.querySelector('input[name="contactNumber"]').value = data.contactNumber || '';
             }
         } catch (error) {
             console.error('Error fetching profile data:', error);
