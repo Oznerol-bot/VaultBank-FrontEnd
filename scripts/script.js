@@ -55,6 +55,7 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
 
         try {
             const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+            const clone = response.clone();
             
             let responseData;
             try {
@@ -64,7 +65,7 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
                     return {};
                 }
                 
-                const errorText = await response.text();
+                const errorText = await clone.text();
                 console.error("Non-JSON error response received:", errorText.substring(0, 100) + '...');
                 
                 if (response.status === 401) {
@@ -407,11 +408,12 @@ async function handleChangePassword(event) {
     showToastMessage('securityMessageArea', 'Changing password...', 'info');
     
     try {
-        const data = await makeApiCall('/api/v1/auth/password/update', 'POST', {
+        const data = await makeApiCall('/api/v1/auth/change-password', 'PATCH', { 
             currentPassword,
-            newPassword,
-            confirmNewPassword
+            newPassword
         });
+
+    
 
         showToastMessage('securityMessageArea', data.message || 'Password changed successfully!', 'success');
         
