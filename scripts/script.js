@@ -415,7 +415,6 @@ async function handleTransfer(event) {
         showToastMessage('withdrawMessageArea', 'Please enter a valid positive amount.', 'error');
         return;
     }
-    
     showToastMessage('withdrawMessageArea', 'Processing withdrawal...', 'info');
     try {
         const data = await makeApiCall('/api/v1/transactions/withdraw', 'POST', { amount });
