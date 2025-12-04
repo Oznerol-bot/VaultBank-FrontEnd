@@ -411,14 +411,12 @@ async function handleTransfer(event) {
     event.preventDefault();
     const amountInput = document.getElementById('withdrawAmount');
     const amount = parseFloat(amountInput.value);
-    
     if (isNaN(amount) || amount <= 0) {
         showToastMessage('withdrawMessageArea', 'Please enter a valid positive amount.', 'error');
         return;
     }
     
     showToastMessage('withdrawMessageArea', 'Processing withdrawal...', 'info');
-
     try {
         const data = await makeApiCall('/api/v1/transactions/withdraw', 'POST', { amount });
 
