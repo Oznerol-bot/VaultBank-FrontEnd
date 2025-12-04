@@ -348,23 +348,89 @@ const API_BASE_URL = 'https://vaultbank-7i3m.onrender.com';
         }
     }
 
-    async function handleTransfer(event) {
-        event.preventDefault();
-        showToastMessage('transferMessageArea', 'Processing transfer...', 'info');
-        showToastMessage('transferMessageArea', 'Transfer reviewed and ready to send (API logic placeholder)', 'success');
+async function handleTransfer(event) {
+    event.preventDefault();
+    // Assuming the amount input is 'transferAmount' and the recipient email input is 'recipientId'
+    const amount = parseFloat(document.getElementById('transferAmount').value);
+    const toEmail = document.getElementById('recipientId')?.value; 
+    
+    if (isNaN(amount) || amount <= 0) {
+        showToastMessage('transferMessageArea', 'Please enter a valid positive amount.', 'error');
+        return;
+    }
+    if (!toEmail) {
+        showToastMessage('transferMessageArea', 'Please enter a valid recipient ID (Email).', 'error');
+        return;
     }
 
+    showToastMessage('transferMessageArea', 'Processing transfer...', 'info');
+
+    try {
+        const data = await makeApiCall('/api/v1/transactions/transfer', 'POST', { 
+            toEmail, 
+            amount 
+        });
+
+        showToastMessage('transferMessageArea', data.message || 'Transfer successful!', 'success');
+        
+        document.getElementById('transferAmount').value = '';
+        document.getElementById('recipientId').value = '';
+        
+        if (typeof fetchDashboardData === 'function') fetchDashboardData(); 
+
+    } catch (error) {
+        console.error('Transfer error:', error);
+        showToastMessage('transferMessageArea', error.message || 'Transfer failed.', 'error');
+    }
+}
     async function handleDeposit(event) {
-        event.preventDefault();
-        showToastMessage('depositMessageArea', 'Processing deposit...', 'info');
-        showToastMessage('depositMessageArea', 'Deposit request confirmed (API logic placeholder)', 'success');
+    event.preventDefault();
+    const amountInput = document.getElementById('depositAmount'); 
+    const amount = parseFloat(amountInput.value);
+    
+    if (isNaN(amount) || amount <= 0) {
+        showToastMessage('depositMessageArea', 'Please enter a valid positive amount.', 'error');
+        return;
     }
+    
+    showToastMessage('depositMessageArea', 'Processing deposit...', 'info');
 
-    async function handleWithdraw(event) {
-        event.preventDefault();
-        showToastMessage('withdrawMessageArea', 'Processing withdrawal...', 'info');
-        showToastMessage('withdrawMessageArea', 'Withdrawal request submitted (API logic placeholder)', 'success');
+    try {
+        const data = await makeApiCall('/api/v1/transactions/deposit', 'POST', { amount });
+
+        showToastMessage('depositMessageArea', data.message || 'Deposit successful!', 'success');
+        amountInput.value = ''; 
+    
+        if (typeof fetchDashboardData === 'function') fetchDashboardData(); 
+    } catch (error) {
+        console.error('Deposit error:', error);
+        showToastMessage('depositMessageArea', error.message || 'Deposit failed.', 'error');
     }
+}
+    async function handleWithdraw(event) {
+    event.preventDefault();
+    const amountInput = document.getElementById('withdrawAmount');
+    const amount = parseFloat(amountInput.value);
+    
+    if (isNaN(amount) || amount <= 0) {
+        showToastMessage('withdrawMessageArea', 'Please enter a valid positive amount.', 'error');
+        return;
+    }
+    
+    showToastMessage('withdrawMessageArea', 'Processing withdrawal...', 'info');
+
+    try {
+        const data = await makeApiCall('/api/v1/transactions/withdraw', 'POST', { amount });
+
+        showToastMessage('withdrawMessageArea', data.message || 'Withdrawal successful!', 'success');
+        amountInput.value = ''; 
+    
+        if (typeof fetchDashboardData === 'function') fetchDashboardData(); 
+    } catch (error) {
+        console.error('Withdrawal error:', error);
+        showToastMessage('withdrawMessageArea', error.message || 'Withdrawal failed.', 'error');
+    }
+}
 
 
     async function fetchAndPopulateProfile() {
